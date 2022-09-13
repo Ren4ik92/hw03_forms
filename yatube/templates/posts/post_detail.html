@@ -3,7 +3,6 @@
 
 {% block content %}
       <div class="row">
-        {% for post in post_d %}
         <aside class="col-12 col-md-3">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
@@ -27,10 +26,9 @@
         </aside>
         <article class="col-12 col-md-9">
           <p>
-           {{ post_d }}
+           {{ post }}
           </p>
         </article>
-      {% endfor %}
       {% include 'includes/paginator.html' %}
       </div>
 {% endblock %}
