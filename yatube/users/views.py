@@ -1,5 +1,3 @@
-from django.template.context_processors import request
-from django.shortcuts import render
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from .forms import CreationForm
