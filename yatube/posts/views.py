@@ -21,7 +21,7 @@ def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     template = 'posts/group_list.html'
     post_list = Post.objects.filter(group=group).order_by('-pub_date')[
-                :MESSAGE_N]
+        :MESSAGE_N]
     context = {
         'group': group,
         'page_obj': paginator_posts(post_list, request)
