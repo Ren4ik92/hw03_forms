@@ -3,6 +3,7 @@ from .models import Post, Group, User
 from django.core.paginator import Paginator
 from .forms import PostForm
 from django.contrib.auth.decorators import login_required
+from .units import paginator_posts
 
 MESSAGE_N = 10
 
@@ -10,12 +11,9 @@ MESSAGE_N = 10
 def index(request):
     template = 'posts/index.html'
     post_list = Post.objects.all().order_by('-pub_date')
-    paginator = Paginator(post_list, MESSAGE_N)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
     context = {
-        'page_obj': page_obj,
-        'post_list': post_list
+        'page_obj': paginator_posts(post_list, request),
+        'post_list': post_list,
 
     }
     return render(request, template, context)
@@ -24,14 +22,11 @@ def index(request):
 def group_posts(request, slug):
     group = get_object_or_404(Group, slug=slug)
     template = 'posts/group_list.html'
-    posts = Post.objects.filter(group=group).order_by('-pub_date')[:MESSAGE_N]
-    paginator = Paginator(posts, MESSAGE_N)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    post_list = Post.objects.filter(group=group).order_by('-pub_date')[
+                :MESSAGE_N]
     context = {
         'group': group,
-        'posts': posts,
-        'page_obj': page_obj
+        'page_obj': paginator_posts(post_list, request)
     }
     return render(request, template, context)
 
@@ -40,12 +35,8 @@ def profile(request, username):
     author = get_object_or_404(User, username=username)
     user_post_list = Post.objects.filter(author__username=username).order_by(
         '-pub_date')
-    paginator = Paginator(user_post_list, MESSAGE_N)
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
     context = {
-        'page_obj': page_obj,
+        'page_obj': paginator_posts(user_post_list, request),
         'author': author
 
     }
@@ -80,12 +71,9 @@ def post_edit(request, post_id):
     form = PostForm(None, instance=post)
     if request.user != post.author:
         return redirect('posts:post_detail', post_id=post_id)
-    if request.method == 'POST':
-        form = PostForm(request.POST, instance=post)
-        if form.is_valid():
-            form.save()
-            return redirect('posts:post_detail', post_id=post_id)
-        return render(request, 'posts/create_post.html',
-                      {'form': form, 'is_edit': True})
+    form = PostForm(request.POST, instance=post)
+    if form.is_valid():
+        form.save()
+        return redirect('posts:post_detail', post_id=post_id)
     return render(request, 'posts/create_post.html',
                   {'form': form, 'is_edit': True})
