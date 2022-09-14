@@ -13,7 +13,6 @@ def index(request):
     context = {
         'page_obj': paginator_posts(post_list, request),
         'post_list': post_list,
-
     }
     return render(request, template, context)
 
