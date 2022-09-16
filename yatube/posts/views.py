@@ -28,7 +28,7 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    user_post_list = Post.objects.filter(author__username=username).order_by(
+    user_post_list = author.posts.select_related('author').order_by(
         '-pub_date')
     context = {
         'page_obj': paginator_posts(user_post_list, MESSAGE_N, request),
@@ -70,4 +70,4 @@ def post_edit(request, post_id):
         form.save()
         return redirect('posts:post_detail', post_id,)
     return render(request, 'posts/create_post.html',
-                  {'form': form, 'is_edit': True}, {'post': post})
+                  {'form': form, 'is_edit': True},)
