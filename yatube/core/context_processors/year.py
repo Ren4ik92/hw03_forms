@@ -2,8 +2,7 @@ import datetime
 
 
 def year(request):
-    now = datetime.date.today()
-    year = now.year
+    year = datetime.date.today().year
     return {
         'year': year
     }

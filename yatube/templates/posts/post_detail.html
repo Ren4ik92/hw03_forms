@@ -29,11 +29,10 @@
            {{ post.text }}
           </p>
           <p>
-            {% if post.author == request.user %}
+            {% if post.author == user %}
               <a href="{% url 'posts:post_edit' post.id %}">Редактировать пост</a>
             {% endif %}
           </p>
         </article>
-      {% include 'includes/paginator.html' %}
       </div>
 {% endblock %}
