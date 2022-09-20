@@ -75,7 +75,16 @@ class PostsURLTests(TestCase):
         """Тест на соотвецтвие адресов и шаблонов"""
         urls_templates = {
             'posts/index.html': '/',
-            'posts/group_list.html': f'group/{self.group.slug}',
-            'posts/create_post.html': 'create/',
-            'posts/profile.html': f'profile/{self.user}'
+            'posts/group_list.html': reverse('posts:postsname',
+                                             kwargs={'slug': self.group.slug}),
+            'posts/create_post.html': reverse('posts:post_create'),
+            'posts/profile.html': reverse('posts:profile',
+                                          kwargs={'username': self.user.username}),
+            'posts/profile.html': reverse('posts:profile',
+                                          kwargs={'username': self.user.username}),
+            'posts/create_post.html': reverse('posts:post_edit', kwargs={'post_id': self.post.id})
         }
+        for template, address in urls_templates.items():
+            with self.subTest(address=address):
+                response = self.author_client.get(address)
+                self.assertTemplateUsed(response, template)
