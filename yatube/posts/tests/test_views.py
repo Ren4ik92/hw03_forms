@@ -108,3 +108,63 @@ class PostPagesTests(TestCase):
         self.assertTrue(response.context['is_edit'])
         self.assertEqual(context_form, post)
         self.assertEqual(context_author, post.author)
+
+
+class PaginatorTests(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='auth')
+        cls.group = Group.objects.create(
+            title='Тестовая группа',
+            slug='test_slug',
+            description='Тестовое описание',
+        )
+        for i in range(0, 13):
+            cls.post = Post.objects.create(
+                author=cls.user,
+                group=cls.group,
+                text='Тестовый текст',
+                pub_date='22.09.2022',
+            )
+        cls.authorized_client = Client()
+        cls.authorized_client.force_login(cls.user)
+
+    def test_first_page_index(self):
+        """Index на первой странице должно быть 10 постов"""
+        response = self.authorized_client.get(reverse('posts:index'))
+        self.assertEqual(len(response.context['page_obj']), 10)
+
+    def test_second_page_index(self):
+        """Index на второй странице должно быть 3 поста"""
+        response = (self.authorized_client.get(
+            reverse('posts:index') + '?page=2'))
+        self.assertEqual(len(response.context['page_obj']), 3)
+
+    def test_first_group_list(self):
+        """Group_list На первой странице должно быть 10 постов"""
+        response = (self.authorized_client.get(
+            reverse('posts:postsname',
+                    kwargs={'slug': self.group.slug})))
+        self.assertEqual(len(response.context['page_obj']), 10)
+
+    def test_second_group_list(self):
+        """Group_list второй странице должно быть 3 поста"""
+        response = (self.authorized_client.get(
+            reverse('posts:postsname',
+                    kwargs={'slug': self.group.slug}) + '?page=2'))
+        self.assertEqual(len(response.context['page_obj']), 3)
+
+    def test_first_profile(self):
+        """Profile На первой странице должно быть 10 постов"""
+        response = (self.authorized_client.get(
+            reverse('posts:profile',
+                    kwargs={'username': self.user.username})))
+        self.assertEqual(len(response.context['page_obj']), 10)
+
+    def test_second_profile(self):
+        """Profile На второй странице должно быть 3 поста"""
+        response = (self.authorized_client.get(
+            reverse('posts:profile',
+                    kwargs={'username': self.user.username}) + '?page=2'))
+        self.assertEqual(len(response.context['page_obj']), 3)
